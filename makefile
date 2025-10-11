@@ -1,8 +1,8 @@
 CC=clang
 CXX=clang++
 CFLAGS=-Wall -Wextra -O2
-CXXFLAGS=-Wall -Wextra -O2 -std=c++17 $(shell pkg-config --cflags Qt6Gui Qt6Core Qt6Widgets)
-LDFLAGS=$(shell pkg-config --libs Qt6Gui Qt6Core Qt6Widgets)
+CXXFLAGS=-Wall -Wextra -O2 -std=c++17 $(shell pkg-config --cflags Qt6Gui Qt6Core Qt6Widgets) -I/usr/include/LayerShellQt
+LDFLAGS=$(shell pkg-config --libs Qt6Gui Qt6Core Qt6Widgets) -lLayerShellQtInterface
 
 SRC_DIR=src
 BIN_DIR=bin
