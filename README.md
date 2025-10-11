@@ -5,11 +5,12 @@
 - Bear
 - Clang
 - QT 6
+- QT 6 for wayland
 - Layer Shell QT
 
 ### Arch Linux
 
-	# pacman -S make bear clang qt6-base qt6-tools layer-shell-qt
+	# pacman -S make bear clang qt6-base layer-shell-qt qt6-wayland
 	$ make compile
 
 ## For developing
