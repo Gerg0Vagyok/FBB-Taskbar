@@ -1,33 +1,54 @@
-#include <QGuiApplication>
 #include <QApplication>
 #include <QPushButton>
 #include <QWidget>
-#include <QWindow>
+#include <QObject>
+#include <QProcess>
+#include <LayerShellQt/Window>
+
+class IconButton {
+	private:
+		inline static int NumberOfIcons = 0;
+		QPushButton *BUTTON;
+	public:
+		IconButton(QWidget *Window, QString Icon, QString Action) {
+			BUTTON = new QPushButton("", Window);
+			BUTTON->setGeometry(2 + 50*NumberOfIcons, 2, 48 + 50*NumberOfIcons, 48);
+			BUTTON->setIcon(QIcon(Icon));
+			BUTTON->setIconSize(BUTTON->size());
+			QObject::connect(BUTTON, &QPushButton::clicked, [Action]() {
+				QProcess::startDetached("sh", QStringList() << "-c" << Action);
+			});
+			NumberOfIcons++;
+		}
+
+		QPushButton *GetButton() {
+			return BUTTON;
+		}
+};
 
 int main(int argc, char **argv) {
+	int ScreenID = 0;
 	QApplication app (argc, argv);
 
+	auto Screen = QGuiApplication::screens().at(ScreenID);
+
+	int Width  = Screen->geometry().width();
+
 	QWidget Window;
-	Window.setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint |
-						  Qt::Tool | Qt::WindowDoesNotAcceptFocus);
+	Window.setWindowFlags(Qt::FramelessWindowHint);
+	Window.setMaximumSize(QSize(Width, 50));
+	Window.setMinimumSize(QSize(Width, 50));
 
-	QWindow *QWindowVar = Window.windowHandle();
-	if (!QWindowVar) {
-		Window.show();
-		Window.hide();
-		QWindowVar = Window.windowHandle();
-	}
+	Window.winId();
+	auto *LayerWindow = LayerShellQt::Window::get(Window.windowHandle());
+	LayerWindow->setLayer(LayerShellQt::Window::LayerTop);
+	LayerWindow->setKeyboardInteractivity(LayerShellQt::Window::KeyboardInteractivityOnDemand);
+	LayerWindow->setExclusiveZone(50);
+	LayerWindow->setAnchors(LayerShellQt::Window::AnchorBottom);
 
-	if (QWindowVar) {
-		QPlatformNativeInterface *Native = QGuiApplication::platformNativeInterface();
-		if (Native) {
-			Native->setWindowProperty();
-		}
-	}
+	IconButton *NewBtn1 = new IconButton(&Window, "/home/Gerg0Vagyok/.config/eww/icons/kitty.png", "kitty");
 
-	QPushButton *button = new QPushButton("Overlay Button", &Window);
 	Window.show();
-
 	return app.exec();
 }
 
