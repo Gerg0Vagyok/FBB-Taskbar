@@ -16,7 +16,7 @@ TARGET=$(BIN_DIR)/main
 
 .PHONY: all clean debug bear compile
 
-all: $(TARGET) bear
+all: bear
 
 compile: $(TARGET)
 
