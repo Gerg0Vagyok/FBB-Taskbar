@@ -5,12 +5,14 @@
 - Bear
 - Clang
 - QT 6
-- QT 6 for wayland
+- QT 6 wayland
 - Layer Shell QT
+- Pkgconfig
+- Binutils
 
 ### Arch Linux
 
-	# pacman -S make bear clang qt6-base layer-shell-qt qt6-wayland
+	# pacman -S make bear clang qt6-base qt6-wayland layer-shell-qt pkgconf binutils
 	$ make compile
 
 ## For developing
