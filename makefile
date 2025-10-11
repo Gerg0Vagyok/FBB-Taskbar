@@ -1,8 +1,8 @@
 CC=clang
 CXX=clang++
 CFLAGS=-Wall -Wextra -O2
-CXXFLAGS=-Wall -Wextra -O2
-LDFLAGS=
+CXXFLAGS=-Wall -Wextra -O2 $(shell pkg-config --cflags Qt6Widgets)
+LDFLAGS=$(shell pkg-config --libs Qt6Widgets)
 
 SRC_DIR=src
 BIN_DIR=bin
@@ -14,9 +14,14 @@ CPP_OBJECTS=$(patsubst $(SRC_DIR)/%.cpp,$(BIN_DIR)/%.o,$(CPP_SOURCES))
 OBJECTS=$(C_OBJECTS) $(CPP_OBJECTS)
 TARGET=$(BIN_DIR)/main
 
-.PHONY: all clean debug
+.PHONY: all clean debug bear compile
 
-all: $(TARGET)
+all: $(TARGET) bear
+
+compile: $(TARGET)
+
+bear:
+	bear -- make compile
 
 debug: CFLAGS=-Wall -Wextra -g -O0
 debug: CXXFLAGS=-Wall -Wextra -g -O0
