@@ -1,3 +1,5 @@
 bin
 bin/*
+.cache/clangd
+.cache/clangd/*
 compile_commands.json
