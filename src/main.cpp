@@ -3,12 +3,17 @@
 #include <QWidget>
 #include <QObject>
 #include <QProcess>
+#include <QLabel>
+#include <QTimer>
+#include <QHBoxLayout>
 #include <sstream>
 #include <filesystem>
 #include <sys/stat.h>
 #include <unicode/unistr.h>
 #include <unicode/locid.h>
 #include <LayerShellQt/Window>
+#include <chrono>
+#include <iostream>
 
 std::vector<std::string> *Split(std::string Value, char Separator) {
 	std::vector<std::string> *Out = new std::vector<std::string>();
@@ -195,9 +200,50 @@ int main(int argc, char **argv) {
 	//for (const std::string &el : *O) {
 	//	std::cout << el << '\n';
 	//}
-	DesktopFile::GetIcon("crow", 46);
+	//DesktopFile::GetIcon("crow", 46);
 
 	//PinIconButton *NewBtn1 = new PinIconButton(&Window, "kitty"); // Test button, this isnt really a good use to anyone but me.
+	
+	std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	std::tm *tm = std::localtime(&t);
+	std::ostringstream TimeLabelString;
+	TimeLabelString << std::put_time(tm, "%H:%M:%S");
+	QWidget *TimeLabel = new QLabel(QString::fromStdString(TimeLabelString.str()));
+	TimeLabelString.str("");
+	TimeLabelString.clear();
+	TimeLabelString << std::put_time(tm, "%Y %m %d");
+	QWidget *DateLabel = new QLabel(QString::fromStdString(TimeLabelString.str()));
+
+	QWidget *Left = new QLabel("I need a widget to make the right side work.");
+
+	QVBoxLayout *TimeDateLayout = new QVBoxLayout;
+	TimeDateLayout->addWidget(DateLabel, 1);
+	TimeDateLayout->addWidget(TimeLabel, 1);
+	
+	TimeDateLayout->setAlignment(TimeLabel, Qt::AlignmentFlag::AlignHCenter);
+	TimeDateLayout->setAlignment(DateLabel, Qt::AlignmentFlag::AlignHCenter);
+
+	QHBoxLayout *MainLayout = new QHBoxLayout;
+	MainLayout->addWidget(Left, 1); // THIS IS ON THE LEFT
+	MainLayout->addLayout(TimeDateLayout, 0);
+
+	QObject *DateAndTimeTimerObject = new QObject();
+	QTimer *DateAndTimeTimer = new QTimer(DateAndTimeTimerObject);
+	QObject::connect(DateAndTimeTimer, &QTimer::timeout, DateAndTimeTimerObject, [TimeLabel, DateLabel]() {
+		std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+		std::tm *tm = std::localtime(&t);
+		std::ostringstream TimeLabelString;
+		TimeLabelString << std::put_time(tm, "%H:%M:%S");
+		((QLabel*)TimeLabel)->setText(QString::fromStdString(TimeLabelString.str()));
+		TimeLabelString.str("");
+		TimeLabelString.clear();
+		TimeLabelString << std::put_time(tm, "%Y %m %d");
+		((QLabel*)DateLabel)->setText(QString::fromStdString(TimeLabelString.str()));
+		TimeLabel->update();
+	});
+	DateAndTimeTimer->start(1000);
+
+	Window.setLayout(MainLayout);
 
 	Window.show();
 	return app.exec();
