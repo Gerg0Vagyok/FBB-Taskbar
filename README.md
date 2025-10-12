@@ -1,4 +1,5 @@
-# A taskbar.
+# Funny But Bad Taskbar
+Basically a taskbar like thing in qt.
 ## Compiling
 ### Dependencies
 - Make

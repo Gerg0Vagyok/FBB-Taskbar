@@ -3,14 +3,17 @@
 #include <QWidget>
 #include <QObject>
 #include <QProcess>
+#include <sstream>
 #include <LayerShellQt/Window>
 
 class DesktopFile {
 	private:
-		inline static std::string DefaultIcon = "fbd-missing";
+		inline static std::string IconPath = "/usr/share/icons/hicolor/";
+		inline static std::string DefaultIconName = "fbd-missing";
+		inline static int DefualtIconSizes[] = {64};
 	public:
-		static std::string GetIcon() {
-			return "";
+		static std::string GetIcon(std::string Name, int DesiredSize) {
+			// The method i tried to use was too complicated for my brain, so its time to combine the lib i have.
 		}
 };
 
@@ -19,7 +22,7 @@ class PinIconButton {
 		inline static int NumberOfIcons = 0;
 		QPushButton *BUTTON;
 	public:
-		PinIconButton(QWidget *Window, QString DesktopFile) {
+		PinIconButton(QWidget *Window, std::string DesktopFile) {
 			BUTTON = new QPushButton("", Window);
 			BUTTON->setGeometry(2 + 50*NumberOfIcons, 2, 48 + 50*NumberOfIcons, 48);
 			BUTTON->setIcon(QIcon(Icon));
