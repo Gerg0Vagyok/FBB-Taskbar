@@ -5,12 +5,21 @@
 #include <QProcess>
 #include <LayerShellQt/Window>
 
-class IconButton {
+class DesktopFile {
+	private:
+		inline static std::string DefaultIcon = "fbd-missing";
+	public:
+		static std::string GetIcon() {
+			return "";
+		}
+};
+
+class PinIconButton {
 	private:
 		inline static int NumberOfIcons = 0;
 		QPushButton *BUTTON;
 	public:
-		IconButton(QWidget *Window, QString Icon, QString Action) {
+		PinIconButton(QWidget *Window, QString DesktopFile) {
 			BUTTON = new QPushButton("", Window);
 			BUTTON->setGeometry(2 + 50*NumberOfIcons, 2, 48 + 50*NumberOfIcons, 48);
 			BUTTON->setIcon(QIcon(Icon));
@@ -67,7 +76,7 @@ int main(int argc, char **argv) {
 	LayerWindow->setExclusiveZone(50);
 	LayerWindow->setAnchors(LayerShellQt::Window::AnchorBottom);
 
-	IconButton *NewBtn1 = new IconButton(&Window, "/home/Gerg0Vagyok/.config/eww/icons/kitty.png", "kitty");
+	PinIconButton *NewBtn1 = new PinIconButton(&Window, "kitty"); // Test button, this isnt really a good use to anyone but me.
 
 	Window.show();
 	return app.exec();
