@@ -11,6 +11,21 @@
 #include <unicode/locid.h>
 #include <LayerShellQt/Window>
 
+std::vector<std::string> *Split(std::string Value, char Separator) {
+	std::vector<std::string> *Out = new std::vector<std::string>();
+	std::string CrntString = "";
+	for (size_t i = 0; i < Value.size(); i++) {
+		char CrntChar = Value.c_str()[i];
+		if (CrntChar == Separator) {
+			Out->push_back(CrntString);
+			CrntString.clear();
+		} else {
+			CrntString += CrntChar;
+		}
+	}
+	return Out;
+}
+
 std::string FormatPath(std::string Path, bool UseSlash) {
 	if (UseSlash) {
 		if (Path.back() == '/') {
@@ -27,11 +42,10 @@ std::string FormatPath(std::string Path, bool UseSlash) {
 	}
 }
 
-std::vector<std::string> *FindInFolderRecursive(std::string Path, std::string Name, bool CaseSensitive, bool ReturnFullPath) {
+std::vector<std::string> *FindInFolder(std::string Path, std::string Name, bool CaseSensitive, bool ReturnFullPath) {
 	std::vector<std::string> *ReturnVar = new std::vector<std::string>();
 	std::filesystem::path PathVar{Path};
 	auto FormattedPath = FormatPath(Path, true);
-	
 
 	if (CaseSensitive) {
 		for (auto const& Entry : std::filesystem::recursive_directory_iterator{PathVar}) {
@@ -75,15 +89,22 @@ class DesktopFile {
 		inline static int DefualtIconSizes[] = {128};
 	public:
 		inline static std::string IconPath = "/usr/share/icons/hicolor/";
+		inline static std::string DesktopPath = "/usr/share/applications/";
 
 		static std::string GetIcon(std::string Name, int DesiredSize) {
 			std::ostringstream ReturnPath;
-			std::ostringstream DesiredDir;
-			DesiredDir << IconPath << DesiredSize << "x" << DesiredSize;
-			if (FileExsists(DesiredDir.str()) == 0) { // Folder exsists, the code now branches. Both branches set ReturnPath;
-				
+			auto IconPathSplit = Split(IconPath, '/');
+
+			auto FoundFiles = FindInFolder(IconPath, Name, false, true);
+			for (const std::string &el : *FoundFiles) {
+				auto el_vec = Split(el, '/');
+				std::cout << el_vec->size() << '\n';
+				for (const std::string &el2 : *el_vec) {
+					std::cout << el2 << '\n';
+				}
 			}
-			return "";
+
+			return ReturnPath.str();
 		}
 };
 /*
@@ -149,10 +170,11 @@ int main(int argc, char **argv) {
 	LayerWindow->setExclusiveZone(50);
 	LayerWindow->setAnchors(LayerShellQt::Window::AnchorBottom);
 
-	auto O = FindInFolderRecursive("/usr/share/icons/hicolor", "Crow", false, false);
-	for (const std::string &el : *O) {
-		std::cout << el << '\n';
-	}
+	//auto O = FindInFolder("/usr/share/icons/hicolor", "Crow", false, false);
+	//for (const std::string &el : *O) {
+	//	std::cout << el << '\n';
+	//}
+	DesktopFile::GetIcon("crow", 46);
 
 	//PinIconButton *NewBtn1 = new PinIconButton(&Window, "kitty"); // Test button, this isnt really a good use to anyone but me.
 
