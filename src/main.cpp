@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QProcess>
 #include <sstream>
-#include <iostream>
 #include <filesystem>
 #include <sys/stat.h>
 #include <unicode/unistr.h>
@@ -84,27 +83,49 @@ int FileExsists(std::string Path) {
 
 class DesktopFile {
 	private:
-		inline static std::string DefaultIconName = "crowbar"; //"fbd-missing";
+		inline static std::string DefaultIconName = "/usr/share/icons/hicolor/128x128/apps/crowbar.png"; //"fbd-missing";
 			// Since i dont actually have anything yet to have i will just use one i have.
-		inline static int DefualtIconSizes[] = {128};
-	public:
 		inline static std::string IconPath = "/usr/share/icons/hicolor/";
+		inline static std::vector<std::string> *IconPathSplit = Split(IconPath, '/');
+	public:
 		inline static std::string DesktopPath = "/usr/share/applications/";
 
+		static std::string GetIconPath() {
+			return IconPath;
+		}
+		static void SetIconPath(std::string Value) {
+			IconPath = Value;
+			IconPathSplit = Split(IconPath, '/');
+		}
+
 		static std::string GetIcon(std::string Name, int DesiredSize) {
-			std::ostringstream ReturnPath;
-			auto IconPathSplit = Split(IconPath, '/');
+			std::vector<int> *FoundSizes = new std::vector<int>();
+			std::map<int, std::string> Map;
 
 			auto FoundFiles = FindInFolder(IconPath, Name, false, true);
-			for (const std::string &el : *FoundFiles) {
-				auto el_vec = Split(el, '/');
-				std::cout << el_vec->size() << '\n';
-				for (const std::string &el2 : *el_vec) {
-					std::cout << el2 << '\n';
+			if (FoundFiles->size() > 0) {
+				for (const std::string &el : *FoundFiles) {
+					auto el_vec = Split(el, '/');
+					if (IconPathSplit->size() < el_vec->size()) {
+						std::string V = (*el_vec)[IconPathSplit->size()];
+						int val;
+						std::istringstream(V.substr(0, (V.size()-1)/2)) >> val;
+						FoundSizes->push_back(val);
+						Map[val] = el;
+					}
+				}
+
+				if (std::count(FoundSizes->begin(), FoundSizes->end(), DesiredSize) > 0) return Map[DesiredSize];
+
+				std::sort(FoundSizes->begin(), FoundSizes->end());
+				if ((*FoundSizes)[FoundSizes->size()] < DesiredSize) return Map[(*FoundSizes)[FoundSizes->size()]];
+				if ((*FoundSizes)[0] > DesiredSize) return Map[(*FoundSizes)[0]];
+
+				for (int &el : *FoundSizes) {
+					if (el > DesiredSize) return Map[el];
 				}
 			}
-
-			return ReturnPath.str();
+			return DefaultIconName;
 		}
 };
 /*
