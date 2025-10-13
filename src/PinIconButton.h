@@ -1,5 +1,5 @@
-#ifndef PINICONBUTTON
-#define PINICONBUTTON
+#ifndef PINICONBUTTON_H
+#define PINICONBUTTON_H
 
 #include <QPushButton>
 #include <QProcess>

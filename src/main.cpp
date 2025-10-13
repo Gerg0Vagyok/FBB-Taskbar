@@ -16,27 +16,6 @@
 
 #include "PinIconButton.h"
 
-class IconTrayButton { // Fix this
-	private:
-		inline static int NumberOfIcons = 0;
-		QPushButton *BUTTON;
-	public:
-		IconTrayButton(QString Icon, QString Action) {
-			BUTTON = new QPushButton();
-			BUTTON->setGeometry(15 + 20*NumberOfIcons, 2,  + 20*NumberOfIcons, 48);
-			BUTTON->setIcon(QIcon(Icon));
-			BUTTON->setIconSize(BUTTON->size());
-			QObject::connect(BUTTON, &QPushButton::clicked, [Action]() {
-				QProcess::startDetached("sh", QStringList() << "-c" << Action);
-			});
-			NumberOfIcons++;
-		}
-
-		QPushButton *GetButton() {
-			return BUTTON;
-		}
-};
-
 int main(int argc, char **argv) {
 	int ScreenID = 0;
 	QApplication app (argc, argv);

@@ -1,5 +1,5 @@
-#ifndef SIMPLEFUNCTIONS
-#define SIMPLEFUNCTIONS
+#ifndef SIMPLEFUNCTIONS_H
+#define SIMPLEFUNCTIONS_H
 
 #include <string>
 #include <vector>
