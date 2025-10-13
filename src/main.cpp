@@ -14,33 +14,7 @@
 #include <chrono>
 #include <iomanip>
 
-#include "DesktopFile.h"
-
-class PinIconButton {
-	private:
-		inline static int NumberOfIcons = 0;
-		QPushButton *BUTTON;
-	public:
-		PinIconButton(std::string DesktopFileExactName, std::string Action) {
-			BUTTON = new QPushButton();
-			BUTTON->setFixedSize(QSize(46, 46));
-			//BUTTON->setGeometry(2 + 50*NumberOfIcons, 2, 48 + 50*NumberOfIcons, 48);
-			std::string IconPath = DesktopFile::GetIcon(DesktopFile::GetDekstopFileIconName(DesktopFileExactName), 46);
-			BUTTON->setIcon(QIcon(QString::fromStdString(IconPath)));
-			BUTTON->setIconSize(BUTTON->size());
-			QObject::connect(BUTTON, &QPushButton::clicked, [Action]() {
-				QProcess Process;
-				Process.setProgram("sh");
-				Process.setArguments({"-c", QString::fromStdString(Action)});
-				Process.startDetached();
-			});
-			NumberOfIcons++;
-		}
-
-		QPushButton *GetButton() {
-			return BUTTON;
-		}
-};
+#include "PinIconButton.h"
 
 class IconTrayButton { // Fix this
 	private:
@@ -133,11 +107,12 @@ int main(int argc, char **argv) {
 		std::ostringstream TimeLabelString;
 		TimeLabelString << std::put_time(tm, "%H:%M:%S");
 		((QLabel*)TimeLabel)->setText(QString::fromStdString(TimeLabelString.str()));
+		TimeLabel->update();
 		TimeLabelString.str("");
 		TimeLabelString.clear();
 		TimeLabelString << std::put_time(tm, "%Y %m %d");
 		((QLabel*)DateLabel)->setText(QString::fromStdString(TimeLabelString.str()));
-		TimeLabel->update();
+		DateLabel->update();
 	});
 	DateAndTimeTimer->start(1000);
 
