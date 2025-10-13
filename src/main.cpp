@@ -7,13 +7,13 @@
 #include <QTimer>
 #include <QHBoxLayout>
 #include <sstream>
+#include <fstream>
 #include <filesystem>
 #include <sys/stat.h>
 #include <unicode/unistr.h>
 #include <unicode/locid.h>
 #include <LayerShellQt/Window>
 #include <chrono>
-#include <iostream>
 
 std::vector<std::string> *Split(std::string Value, char Separator) {
 	std::vector<std::string> *Out = new std::vector<std::string>();
@@ -91,16 +91,45 @@ class DesktopFile {
 		inline static std::string DefaultIconName = "/usr/share/icons/hicolor/128x128/apps/crowbar.png"; //"fbd-missing";
 			// Since i dont actually have anything yet to have i will just use one i have.
 		inline static std::string IconPath = "/usr/share/icons/hicolor/";
-		inline static std::vector<std::string> *IconPathSplit = Split(IconPath, '/');
-	public:
 		inline static std::string DesktopPath = "/usr/share/applications/";
+		inline static std::vector<std::string> *IconPathSplit = Split(IconPath, '/');
+		inline static std::vector<std::string> *DesktopPathSplit = Split(DesktopPath, '/');
 
+		std::string DesktopFileString;
+		std::string DesktopFileIcon;
+	public:
 		static std::string GetIconPath() {
 			return IconPath;
 		}
 		static void SetIconPath(std::string Value) {
 			IconPath = Value;
 			IconPathSplit = Split(IconPath, '/');
+		}
+		static std::string GetDesktopPath() {
+			return DesktopPath;
+		}
+		static void SetDesktopPath(std::string Value) {
+			DesktopPath = Value;
+			DesktopPathSplit = Split(DesktopPath, '/');
+		}
+
+		DesktopFile(std::string DesktopFileName) {
+			this->DesktopFileString = DesktopFileName;
+			this->DesktopFileIcon = DesktopFile::GetDekstopFileIconName(DesktopFileName);
+		}
+
+		static std::string GetDekstopFileIconName(std::string Name) {
+			std::ostringstream File_oss;
+			File_oss << FormatPath(DesktopPath, true) << Name << ".desktop";
+			std::ifstream infile(File_oss.str());
+
+			std::string Line;
+			while (std::getline(infile, Line)) {
+				if (Line.size() > 5 && Line.substr(0, 5).find("icon=")) {
+					return Line.substr(5, Line.size()-1);
+				}
+			}
+			return "";
 		}
 
 		static std::string GetIcon(std::string Name, int DesiredSize) {
@@ -132,20 +161,29 @@ class DesktopFile {
 			}
 			return DefaultIconName;
 		}
+
+		std::string GetIcon(int DesiredSize) {
+			return DesktopFile::GetIcon(this->DesktopFileIcon, DesiredSize);
+		}
 };
-/*
+
 class PinIconButton {
 	private:
 		inline static int NumberOfIcons = 0;
 		QPushButton *BUTTON;
 	public:
-		PinIconButton(QWidget *Window, std::string DesktopFile) {
-			BUTTON = new QPushButton("", Window);
-			BUTTON->setGeometry(2 + 50*NumberOfIcons, 2, 48 + 50*NumberOfIcons, 48);
-			BUTTON->setIcon(QIcon(Icon));
+		PinIconButton(std::string DesktopFileExactName, std::string Action) {
+			BUTTON = new QPushButton();
+			BUTTON->setFixedSize(QSize(46, 46));
+			//BUTTON->setGeometry(2 + 50*NumberOfIcons, 2, 48 + 50*NumberOfIcons, 48);
+			std::string IconPath = DesktopFile::GetIcon(DesktopFile::GetDekstopFileIconName(DesktopFileExactName), 46);
+			BUTTON->setIcon(QIcon(QString::fromStdString(IconPath)));
 			BUTTON->setIconSize(BUTTON->size());
 			QObject::connect(BUTTON, &QPushButton::clicked, [Action]() {
-				QProcess::startDetached("sh", QStringList() << "-c" << Action);
+				QProcess Process;
+				Process.setProgram("sh");
+				Process.setArguments({"-c", QString::fromStdString(Action)});
+				Process.startDetached();
 			});
 			NumberOfIcons++;
 		}
@@ -153,15 +191,15 @@ class PinIconButton {
 		QPushButton *GetButton() {
 			return BUTTON;
 		}
-};*/
+};
 
 class IconTrayButton { // Fix this
 	private:
 		inline static int NumberOfIcons = 0;
 		QPushButton *BUTTON;
 	public:
-		IconTrayButton(QWidget *Window, QString Icon, QString Action) {
-			BUTTON = new QPushButton("", Window);
+		IconTrayButton(QString Icon, QString Action) {
+			BUTTON = new QPushButton();
 			BUTTON->setGeometry(15 + 20*NumberOfIcons, 2,  + 20*NumberOfIcons, 48);
 			BUTTON->setIcon(QIcon(Icon));
 			BUTTON->setIconSize(BUTTON->size());
@@ -214,9 +252,15 @@ int main(int argc, char **argv) {
 	TimeLabelString << std::put_time(tm, "%Y %m %d");
 	QWidget *DateLabel = new QLabel(QString::fromStdString(TimeLabelString.str()));
 
-	QWidget *Left = new QLabel("I need a widget to make the right side work.");
+	QHBoxLayout *IconsLayout = new QHBoxLayout();
+	IconsLayout->setSpacing(0);
+	IconsLayout->setContentsMargins(0, 0, 0, 0);
+
+	PinIconButton *TestIcon = new PinIconButton("Crowbar", "kitty");
+	IconsLayout->addWidget(TestIcon->GetButton(), 0);
 
 	QVBoxLayout *TimeDateLayout = new QVBoxLayout;
+	TimeDateLayout->setContentsMargins(0, 6, 6, 6);
 	TimeDateLayout->addWidget(DateLabel, 1);
 	TimeDateLayout->addWidget(TimeLabel, 1);
 	
@@ -224,8 +268,13 @@ int main(int argc, char **argv) {
 	TimeDateLayout->setAlignment(DateLabel, Qt::AlignmentFlag::AlignHCenter);
 
 	QHBoxLayout *MainLayout = new QHBoxLayout;
-	MainLayout->addWidget(Left, 1); // THIS IS ON THE LEFT
+	MainLayout->setContentsMargins(2, 2, 6, 2);
+
+	MainLayout->addLayout(IconsLayout, 0); // THIS IS ON THE LEFT
 	MainLayout->addLayout(TimeDateLayout, 0);
+
+	//MainLayout->setAlignment(IconsLayout, Qt::AlignmentFlag::AlignLeft);
+	MainLayout->setAlignment(TimeDateLayout, Qt::AlignmentFlag::AlignRight);
 
 	QObject *DateAndTimeTimerObject = new QObject();
 	QTimer *DateAndTimeTimer = new QTimer(DateAndTimeTimerObject);
