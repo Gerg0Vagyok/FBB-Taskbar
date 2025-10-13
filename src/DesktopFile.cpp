@@ -51,30 +51,32 @@ std::string DesktopFile::GetDekstopFileIconName(std::string Name) {
 }
 
 std::string DesktopFile::GetIcon(std::string Name, int DesiredSize) {
-	std::vector<int> *FoundSizes = new std::vector<int>();
-	std::map<int, std::string> Map;
+	if (Name.size() > 0) {
+		std::vector<int> *FoundSizes = new std::vector<int>();
+		std::map<int, std::string> Map;
 
-	auto FoundFiles = FindInFolder(IconPath, Name, false, true);
-	if (FoundFiles->size() > 0) {
-		for (const std::string &el : *FoundFiles) {
-			auto el_vec = Split(el, '/');
-			if (IconPathSplit->size() < el_vec->size()) {
-				std::string V = (*el_vec)[IconPathSplit->size()];
-				int val;
-				std::istringstream(V.substr(0, (V.size()-1)/2)) >> val;
-				FoundSizes->push_back(val);
-				Map[val] = el;
+		auto FoundFiles = FindInFolder(IconPath, Name, false, true);
+		if (FoundFiles->size() > 0) {
+			for (const std::string &el : *FoundFiles) {
+				auto el_vec = Split(el, '/');
+				if (IconPathSplit->size() < el_vec->size()) {
+					std::string V = (*el_vec)[IconPathSplit->size()];
+					int val;
+					std::istringstream(V.substr(0, (V.size()-1)/2)) >> val;
+					FoundSizes->push_back(val);
+					Map[val] = el;
+				}
 			}
-		}
 
-		if (std::count(FoundSizes->begin(), FoundSizes->end(), DesiredSize) > 0) return Map[DesiredSize];
+			if (std::count(FoundSizes->begin(), FoundSizes->end(), DesiredSize) > 0) return Map[DesiredSize];
 
-		std::sort(FoundSizes->begin(), FoundSizes->end());
-		if ((*FoundSizes)[FoundSizes->size()] < DesiredSize) return Map[(*FoundSizes)[FoundSizes->size()]];
-		if ((*FoundSizes)[0] > DesiredSize) return Map[(*FoundSizes)[0]];
+			std::sort(FoundSizes->begin(), FoundSizes->end());
+			if ((*FoundSizes)[FoundSizes->size()] < DesiredSize) return Map[(*FoundSizes)[FoundSizes->size()]];
+			if ((*FoundSizes)[0] > DesiredSize) return Map[(*FoundSizes)[0]];
 
-		for (int &el : *FoundSizes) {
-			if (el > DesiredSize) return Map[el];
+			for (int &el : *FoundSizes) {
+				if (el > DesiredSize) return Map[el];
+			}
 		}
 	}
 	return DefaultIconName;

@@ -55,12 +55,15 @@ int main(int argc, char **argv) {
 	QWidget *DateLabel = new QLabel(QString::fromStdString(TimeLabelString.str()));
 
 	QHBoxLayout *IconsLayout = new QHBoxLayout();
-	IconsLayout->setSpacing(0);
+	IconsLayout->setSpacing(2);
 	IconsLayout->setContentsMargins(0, 0, 0, 0);
 
 	PinIconButton *TestIcon = new PinIconButton("Crowbar", "kitty");
 	IconsLayout->addWidget(TestIcon->GetButton(), 0);
 
+	PinIconButton *TestIcon2 = new PinIconButton("asdasd", "floorp");
+	IconsLayout->addWidget(TestIcon2->GetButton(), 0);
+	
 	QVBoxLayout *TimeDateLayout = new QVBoxLayout;
 	TimeDateLayout->setContentsMargins(0, 6, 6, 6);
 	TimeDateLayout->addWidget(DateLabel, 1);
