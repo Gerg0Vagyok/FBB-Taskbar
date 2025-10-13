@@ -12,7 +12,7 @@ CPP_SOURCES=$(wildcard $(SRC_DIR)/*.cpp)
 C_OBJECTS=$(patsubst $(SRC_DIR)/%.c,$(BIN_DIR)/%.o,$(C_SOURCES))
 CPP_OBJECTS=$(patsubst $(SRC_DIR)/%.cpp,$(BIN_DIR)/%.o,$(CPP_SOURCES))
 OBJECTS=$(C_OBJECTS) $(CPP_OBJECTS)
-TARGET=$(BIN_DIR)/main
+TARGET=$(BIN_DIR)/fbb-taskbar
 
 .PHONY: all clean debug bear compile
 
