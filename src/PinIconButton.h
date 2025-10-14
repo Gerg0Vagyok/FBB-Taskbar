@@ -7,10 +7,12 @@
 class PinIconButton {
 	private:
 		static int NumberOfIcons;
-		QPushButton *BUTTON;
+		static std::vector<PinIconButton *> *Icons;
+		QPushButton *Btn;
 	public:
-		PinIconButton(std::string DesktopFileExactName, std::string Action);
+		//PinIconButton(std::string DesktopFileExactName, std::string Action);
 		QPushButton *GetButton();
+		static PinIconButton *NewIcon(std::string DesktopFileExactName, std::string Action, size_t *ID);
 };
 
 #endif

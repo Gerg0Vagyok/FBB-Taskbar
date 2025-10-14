@@ -58,10 +58,10 @@ int main(int argc, char **argv) {
 	IconsLayout->setSpacing(2);
 	IconsLayout->setContentsMargins(0, 0, 0, 0);
 
-	PinIconButton *TestIcon = new PinIconButton("Crowbar", "kitty");
+	PinIconButton *TestIcon = PinIconButton::NewIcon("Crowbar", "kitty", nullptr);
 	IconsLayout->addWidget(TestIcon->GetButton(), 0);
 
-	PinIconButton *TestIcon2 = new PinIconButton("asdasd", "floorp");
+	PinIconButton *TestIcon2 = PinIconButton::NewIcon("asdasd", "floorp", nullptr);
 	IconsLayout->addWidget(TestIcon2->GetButton(), 0);
 	
 	QVBoxLayout *TimeDateLayout = new QVBoxLayout;
