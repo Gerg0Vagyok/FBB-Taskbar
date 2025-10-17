@@ -13,10 +13,79 @@
 #include <LayerShellQt/Window>
 #include <chrono>
 #include <iomanip>
+#include <iostream>
+
+#include <unistd.h>
+#include <unordered_map>
 
 #include "PinIconButton.h"
 
+class OpenWindowButtons {
+	private:
+		std::unordered_map<std::string, std::vector<std::string> *> *Apps;
+		QLayout *UsedLayout;
+		std::vector<PinIconButton *> *Icons;
+	public:
+		void Reset() {
+			Apps->clear();
+			for (auto el : *Icons) {
+				delete el->GetButton();
+				delete el;
+			}
+			Icons->clear();
+		}
+
+		void RegisterNew(std::string App, std::string Action) {
+			if (Apps->count(App) == 0) {
+				Apps->insert(std::make_pair(App, new std::vector<std::string>()));
+			}
+			Apps->at(App)->push_back(Action);
+		}
+
+		void Update() {
+			for (auto& [Key, Value]: *Apps) {
+				for (auto el : *Value) {
+					auto NewIcon = PinIconButton::NewIcon(Key, el, nullptr);
+					Icons->push_back(NewIcon);
+					UsedLayout->addWidget(NewIcon->GetButton());
+				}
+			}
+			UsedLayout->update();
+		}
+
+		OpenWindowButtons(QLayout *Layout) {
+			Apps = new std::unordered_map<std::string, std::vector<std::string> *>();
+			UsedLayout = Layout;
+			Icons = new std::vector<PinIconButton *>();
+		}
+};
+
+QFrame *HorizontalSeparator() {
+	auto Sep = new QFrame();
+	Sep->setFrameShape(QFrame::VLine);
+	Sep->setFrameShadow(QFrame::Plain);
+	Sep->setLineWidth(1);
+	return Sep;
+}
+
+QFrame *VerticalSeparator() {
+	auto Sep = new QFrame();
+	Sep->setFrameShape(QFrame::HLine);
+	Sep->setFrameShadow(QFrame::Plain);
+	Sep->setLineWidth(1);
+	return Sep;
+}
+
+bool PrevligeCheck() {
+	return geteuid() == 0;
+}
+
 int main(int argc, char **argv) {
+	if (PrevligeCheck() == true) {
+		std::cout << "NOT SAFE!\nRun app as a regular user to continue.\n";
+		return 1;
+	}
+
 	int ScreenID = 0;
 	QApplication app (argc, argv);
 
@@ -25,7 +94,7 @@ int main(int argc, char **argv) {
 	int Width  = Screen->geometry().width();
 
 	QWidget Window;
-	Window.setWindowFlags(Qt::FramelessWindowHint);
+	Window.setWindowFlags(Qt::FramelessWindowHint | Qt::WindowDoesNotAcceptFocus | Qt::Tool);
 	Window.setMaximumSize(QSize(Width, 50));
 	Window.setMinimumSize(QSize(Width, 50));
 
@@ -43,16 +112,6 @@ int main(int argc, char **argv) {
 	//DesktopFile::GetIcon("crow", 46);
 
 	//PinIconButton *NewBtn1 = new PinIconButton(&Window, "kitty"); // Test button, this isnt really a good use to anyone but me.
-	
-	std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-	std::tm *tm = std::localtime(&t);
-	std::ostringstream TimeLabelString;
-	TimeLabelString << std::put_time(tm, "%H:%M:%S");
-	QWidget *TimeLabel = new QLabel(QString::fromStdString(TimeLabelString.str()));
-	TimeLabelString.str("");
-	TimeLabelString.clear();
-	TimeLabelString << std::put_time(tm, "%Y %m %d");
-	QWidget *DateLabel = new QLabel(QString::fromStdString(TimeLabelString.str()));
 
 	QHBoxLayout *IconsLayout = new QHBoxLayout();
 	IconsLayout->setSpacing(2);
@@ -63,6 +122,49 @@ int main(int argc, char **argv) {
 
 	PinIconButton *TestIcon2 = PinIconButton::NewIcon("asdasd", "floorp", nullptr);
 	IconsLayout->addWidget(TestIcon2->GetButton(), 0);
+	
+	IconsLayout->addWidget(HorizontalSeparator(), 0);
+
+	QProcess *GetActiveWindowsProcess = new QProcess();
+	GetActiveWindowsProcess->setProgram("/home/Gerg0Vagyok/projects/SwayGetWindowsAndIcons/bin/main");
+	/* 
+	 * Since i currently i dont know of a way to make this compatible across all window managers and desktop envirenments,
+	 * this uses an executable i wrote in which doesnt really exsist for anyone else. and i dont plan on implementing it since it would be different per wm/de.
+	 * Will have a config option for this. Hopefulyy nobody else tries this.
+	 * */
+	GetActiveWindowsProcess->setArguments({});
+	GetActiveWindowsProcess->start();
+
+	auto Testicons = new OpenWindowButtons(IconsLayout);
+
+	QObject::connect(GetActiveWindowsProcess, &QProcess::readyReadStandardOutput, [&GetActiveWindowsProcess, Testicons]() {
+		QByteArray data = GetActiveWindowsProcess->readAllStandardOutput();
+		Testicons->Reset();
+
+		//qDebug() << "Received bytes:" << data.size();
+		QList List = data.split('\n');
+		for (QByteArray El : List) {
+			QList Window = El.split('\0');
+			if (Window.size() == 3) {
+				Testicons->RegisterNew(Window[1].toStdString(), Window[2].toStdString());
+				/*qDebug() << "Type: " << Window[0];
+				qDebug() << "Icon: " << Window[1];
+				qDebug() << "Action: " << Window[2];
+				*/
+			}
+		}
+		Testicons->Update();
+	});
+
+	std::time_t t = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	std::tm *tm = std::localtime(&t);
+	std::ostringstream TimeLabelString;
+	TimeLabelString << std::put_time(tm, "%H:%M:%S");
+	QWidget *TimeLabel = new QLabel(QString::fromStdString(TimeLabelString.str()));
+	TimeLabelString.str("");
+	TimeLabelString.clear();
+	TimeLabelString << std::put_time(tm, "%Y %m %d");
+	QWidget *DateLabel = new QLabel(QString::fromStdString(TimeLabelString.str()));
 	
 	QVBoxLayout *TimeDateLayout = new QVBoxLayout;
 	TimeDateLayout->setContentsMargins(0, 6, 6, 6);

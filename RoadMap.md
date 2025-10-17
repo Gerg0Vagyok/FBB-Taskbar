@@ -5,7 +5,7 @@ A nice and clean taskbar for wayland.
 ## Stuff being worked on:
 - [ ] Feature: Ability to create or delete icons in real time.
 - [ ] Asset: Missing image icon.
-- [ ] Feature: Icons to select windows.
+- [O] Feature: Icons to select windows.
 - [ ] Feature: Icon groups per app.
 - [ ] Feature: System tray icons.
 - [ ] Feature: Config parsing logic.
