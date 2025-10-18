@@ -12,6 +12,7 @@ class PinIconButton {
 	public:
 		//PinIconButton(std::string DesktopFileExactName, std::string Action);
 		QPushButton *GetButton();
+		static void Delete(PinIconButton *Instance);
 		static PinIconButton *NewIcon(std::string DesktopFileExactName, std::string Action, size_t *ID);
 };
 

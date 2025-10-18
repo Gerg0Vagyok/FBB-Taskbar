@@ -5,10 +5,14 @@
 #include <vector>
 #include <sys/stat.h>
 #include <unicode/locid.h>
+#include <QFrame>
 
 extern std::vector<std::string> *Split(std::string Value, char Separator);
 extern std::string FormatPath(std::string Path, bool UseSlash);
 extern std::vector<std::string> *FindInFolder(std::string Path, std::string Name, bool CaseSensitive, bool ReturnFullPath);
 extern int FileExsists(std::string Path);
+extern QFrame *HorizontalSeparator();
+extern QFrame *VerticalSeparator();
+extern bool PrevligeCheck();
 
 #endif

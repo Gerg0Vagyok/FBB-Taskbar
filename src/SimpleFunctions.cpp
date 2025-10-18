@@ -3,6 +3,8 @@
 #include <filesystem>
 #include <sys/stat.h>
 #include <unicode/locid.h>
+#include <QFrame>
+#include <unistd.h>
 
 std::vector<std::string> *Split(std::string Value, char Separator) {
 	std::vector<std::string> *Out = new std::vector<std::string>();
@@ -75,3 +77,22 @@ int FileExsists(std::string Path) {
 	return stat(Path.c_str(), &ThrowawayVar);
 }
 
+QFrame *HorizontalSeparator() {
+	auto Sep = new QFrame();
+	Sep->setFrameShape(QFrame::VLine);
+	Sep->setFrameShadow(QFrame::Plain);
+	Sep->setLineWidth(1);
+	return Sep;
+}
+
+QFrame *VerticalSeparator() {
+	auto Sep = new QFrame();
+	Sep->setFrameShape(QFrame::HLine);
+	Sep->setFrameShadow(QFrame::Plain);
+	Sep->setLineWidth(1);
+	return Sep;
+}
+
+bool PrevligeCheck() {
+	return geteuid() == 0;
+}

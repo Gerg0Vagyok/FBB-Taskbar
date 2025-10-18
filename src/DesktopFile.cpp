@@ -6,11 +6,12 @@
 #include <LayerShellQt/Window>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "SimpleFunctions.h"
 #include "DesktopFile.h"
 
-std::string DesktopFile::DefaultIconName = "/usr/share/icons/hicolor/128x128/apps/crowbar.png"; //"fbb-taskbar-missing"
+std::string DesktopFile::DefaultIconName = "/usr/share/icons/hicolor/128x128/apps/fbb-taskbar-missing.png";
 std::string DesktopFile::IconPath = "/usr/share/icons/hicolor/";
 std::string DesktopFile::DesktopPath = "/usr/share/applications/";
 std::vector<std::string> *DesktopFile::IconPathSplit = Split(IconPath, '/');
@@ -43,7 +44,8 @@ std::string DesktopFile::GetDekstopFileIconName(std::string Name) {
 
 	std::string Line;
 	while (std::getline(infile, Line)) {
-		if (Line.size() > 5 && Line.substr(0, 5).find("icon=")) {
+		std::cout << Line << '\n';
+		if (Line.size() > 5 && Line.substr(0, 5).find("Icon=")) {
 			return Line.substr(5, Line.size()-1);
 		}
 	}

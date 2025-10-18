@@ -15,70 +15,9 @@
 #include <iomanip>
 #include <iostream>
 
-#include <unistd.h>
-#include <unordered_map>
-
 #include "PinIconButton.h"
-
-class OpenWindowButtons {
-	private:
-		std::unordered_map<std::string, std::vector<std::string> *> *Apps;
-		QLayout *UsedLayout;
-		std::vector<PinIconButton *> *Icons;
-	public:
-		void Reset() {
-			Apps->clear();
-			for (auto el : *Icons) {
-				delete el->GetButton();
-				delete el;
-			}
-			Icons->clear();
-		}
-
-		void RegisterNew(std::string App, std::string Action) {
-			if (Apps->count(App) == 0) {
-				Apps->insert(std::make_pair(App, new std::vector<std::string>()));
-			}
-			Apps->at(App)->push_back(Action);
-		}
-
-		void Update() {
-			for (auto& [Key, Value]: *Apps) {
-				for (auto el : *Value) {
-					auto NewIcon = PinIconButton::NewIcon(Key, el, nullptr);
-					Icons->push_back(NewIcon);
-					UsedLayout->addWidget(NewIcon->GetButton());
-				}
-			}
-			UsedLayout->update();
-		}
-
-		OpenWindowButtons(QLayout *Layout) {
-			Apps = new std::unordered_map<std::string, std::vector<std::string> *>();
-			UsedLayout = Layout;
-			Icons = new std::vector<PinIconButton *>();
-		}
-};
-
-QFrame *HorizontalSeparator() {
-	auto Sep = new QFrame();
-	Sep->setFrameShape(QFrame::VLine);
-	Sep->setFrameShadow(QFrame::Plain);
-	Sep->setLineWidth(1);
-	return Sep;
-}
-
-QFrame *VerticalSeparator() {
-	auto Sep = new QFrame();
-	Sep->setFrameShape(QFrame::HLine);
-	Sep->setFrameShadow(QFrame::Plain);
-	Sep->setLineWidth(1);
-	return Sep;
-}
-
-bool PrevligeCheck() {
-	return geteuid() == 0;
-}
+#include "OpenWindowButtons.h"
+#include "SimpleFunctions.h"
 
 int main(int argc, char **argv) {
 	if (PrevligeCheck() == true) {

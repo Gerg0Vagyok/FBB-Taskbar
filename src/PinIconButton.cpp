@@ -28,3 +28,8 @@ PinIconButton *PinIconButton::NewIcon(std::string DesktopFileExactName, std::str
 QPushButton *PinIconButton::GetButton() {
 	return Btn;
 }
+
+void PinIconButton::Delete(PinIconButton *Instance) {
+	delete Instance->GetButton();
+	delete Instance;
+}
