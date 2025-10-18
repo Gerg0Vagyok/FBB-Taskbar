@@ -11,7 +11,7 @@
 #include "SimpleFunctions.h"
 #include "DesktopFile.h"
 
-std::string DesktopFile::DefaultIconName = "/usr/share/icons/hicolor/128x128/apps/fbb-taskbar-missing.png";
+std::string DesktopFile::DefaultIconName = "/usr/local/share/fbb-taskbar/MissingIcon.png";
 std::string DesktopFile::IconPath = "/usr/share/icons/hicolor/";
 std::string DesktopFile::DesktopPath = "/usr/share/applications/";
 std::vector<std::string> *DesktopFile::IconPathSplit = Split(IconPath, '/');
