@@ -44,8 +44,7 @@ std::string DesktopFile::GetDekstopFileIconName(std::string Name) {
 
 	std::string Line;
 	while (std::getline(infile, Line)) {
-		std::cout << Line << '\n';
-		if (Line.size() > 5 && Line.substr(0, 5).find("Icon=")) {
+		if (Line.size() > 5 && Line.substr(0, 5).find("Icon=") == 0) {
 			return Line.substr(5, Line.size()-1);
 		}
 	}
@@ -73,7 +72,7 @@ std::string DesktopFile::GetIcon(std::string Name, int DesiredSize) {
 			if (std::count(FoundSizes->begin(), FoundSizes->end(), DesiredSize) > 0) return Map[DesiredSize];
 
 			std::sort(FoundSizes->begin(), FoundSizes->end());
-			if ((*FoundSizes)[FoundSizes->size()] < DesiredSize) return Map[(*FoundSizes)[FoundSizes->size()]];
+			if ((*FoundSizes)[FoundSizes->size()-1] < DesiredSize) return Map[(*FoundSizes)[FoundSizes->size()-1]];
 			if ((*FoundSizes)[0] > DesiredSize) return Map[(*FoundSizes)[0]];
 
 			for (int &el : *FoundSizes) {
